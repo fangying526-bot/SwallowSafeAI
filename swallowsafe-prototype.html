@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SwallowSafe AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root[data-theme="light"] {
+    --bg:#FBF7F1; --surface:#FFFFFF; --border:#E8E0D3;
+    --text-primary:#2A2520; --text-secondary:#6B5F52; --text-muted:#7C7166;
+    --primary:#C2410C; --secondary:#15803D; --tertiary:#B45309; --cta:#EAB308;
+    --success:#16A34A; --warning:#D97706; --danger:#B91C1C; --info:#0369A1;
+    --cta-fg:#2A2520;
+  }
+  :root[data-theme="dark"] {
+    --bg:#1B1612; --surface:#26201B; --border:#3A332C;
+    --text-primary:#F5EFE6; --text-secondary:#C5B8A8; --text-muted:#8B7E6E;
+    --primary:#FB923C; --secondary:#4ADE80; --tertiary:#FBBF24; --cta:#FACC15;
+    --success:#4ADE80; --warning:#FBBF24; --danger:#F87171; --info:#38BDF8;
+    --cta-fg:#1B1612;
+  }
+  * { box-sizing: border-box; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--text-primary); }
+  body { font-family:'Inter', system-ui, -apple-system, sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,h4 { font-family:'Fraunces', Georgia, serif; font-weight:700; margin:0; letter-spacing:-0.01em; }
+  .mono { font-family:'IBM Plex Mono', ui-monospace, monospace; }
+  a { color:inherit; }
+  button { font-family:inherit; cursor:pointer; }
+  .shadow-sm{ box-shadow:0 1px 2px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.04); }
+  .shadow-md{ box-shadow:0 4px 8px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05); }
+  .shadow-lg{ box-shadow:0 12px 24px rgba(0,0,0,.10),0 6px 12px rgba(0,0,0,.06); }
+  .shadow-xl{ box-shadow:0 24px 48px rgba(0,0,0,.14),0 12px 24px rgba(0,0,0,.08); }
+
+  #app { max-width:720px; margin:0 auto; padding: 24px 20px 140px; min-height:100vh; }
+  .container-wide { max-width:820px; }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border-radius:10px; padding:12px 20px; min-height:44px; font-size:15px; font-weight:600;
+    border:none; transition:filter 120ms cubic-bezier(.4,0,.2,1), transform 120ms; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background:var(--cta); color:var(--cta-fg); }
+  .btn-primary:hover { filter:brightness(0.92); }
+  .btn-secondary { background:transparent; color:var(--primary); border:2px solid var(--primary); }
+  .btn-secondary:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+  .btn-ghost { background:transparent; color:var(--text-secondary); border:none; }
+  .btn-ghost:hover { background:var(--surface); }
+  .btn-danger { background:var(--danger); color:#fff; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn:focus-visible, .chip:focus-visible, input:focus-visible, textarea:focus-visible, .card-select:focus-visible {
+    outline:2px solid var(--primary); outline-offset:2px;
+  }
+
+  .chip { border:2px solid var(--border); background:var(--surface); border-radius:9999px;
+    padding:10px 18px; font-size:14px; font-weight:600; color:var(--text-primary); min-height:44px; }
+  .chip[aria-pressed="true"] { border-color:var(--primary); background:color-mix(in srgb, var(--primary) 10%, var(--surface)); color:var(--primary); }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; }
+  .card-select { background:var(--surface); border:2px solid var(--border); border-radius:16px; padding:16px;
+    text-align:left; width:100%; display:flex; align-items:center; gap:12px; min-height:44px; }
+  .card-select[aria-pressed="true"] { border-color:var(--primary); background:color-mix(in srgb, var(--primary) 8%, var(--surface)); }
+  .card-select:hover { border-color: var(--tertiary); }
+
+  input[type=text], input[type=number], textarea, select {
+    width:100%; border:2px solid var(--border); border-radius:10px; padding:12px 14px;
+    font-size:15px; background:var(--surface); color:var(--text-primary); font-family:inherit;
+  }
+  input:focus, textarea:focus { border-color:var(--primary); outline:none; }
+  label { font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; }
+
+  .badge { display:inline-flex; align-items:center; gap:6px; border-radius:9999px; padding:4px 12px; font-size:12px; font-weight:600; }
+  .progress-track { height:6px; background:var(--border); border-radius:9999px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--primary); border-radius:9999px; transition:width 360ms cubic-bezier(.16,1,.3,1); }
+
+  .top-bar { display:flex; align-items:center; justify-content:space-between; padding:4px 0 20px; }
+  .brand { display:flex; align-items:center; gap:10px; font-family:'Fraunces'; font-weight:700; font-size:18px; }
+  .brand-mark { width:32px; height:32px; border-radius:9px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; }
+
+  .emergency-fab { position:fixed; right:16px; bottom:16px; z-index:50; background:var(--danger); color:#fff;
+    border-radius:9999px; padding:14px 20px; font-weight:700; display:flex; align-items:center; gap:8px;
+    box-shadow:0 12px 24px rgba(0,0,0,.18); border:none; min-height:44px; }
+  .emergency-fab:hover { filter:brightness(1.06); }
+
+  .fade-in { animation: fadeIn 360ms cubic-bezier(.16,1,.3,1); }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  .chat-bubble-ai { background:var(--surface); border:1px solid var(--border); border-radius:16px 16px 16px 4px; padding:14px 16px; max-width:85%; }
+  .chat-bubble-user { background:var(--primary); color:#fff; border-radius:16px 16px 4px 16px; padding:14px 16px; max-width:85%; margin-left:auto; }
+  .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--text-muted); display:inline-block; animation:pulse 1s infinite ease-in-out; }
+  .typing-dot:nth-child(2){ animation-delay:0.15s; } .typing-dot:nth-child(3){ animation-delay:0.3s; }
+  @keyframes pulse { 0%,80%,100%{opacity:0.3;} 40%{opacity:1;} }
+
+  ::-webkit-scrollbar { width:8px; } ::-webkit-scrollbar-thumb { background:var(--border); border-radius:9999px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   SwallowSafe AI — interactive prototype
+   Deterministic clinical rule engine + Claude for language only.
+   The model NEVER sets urgency; it only explains/phrases/asks
+   clarifying questions. This is a course-project demo grounded
+   in published pediatric guidance (NASPGHAN 2015 foreign body
+   ingestion algorithms; National Capital Poison Center button
+   battery protocol) and is NOT reviewed or approved for clinical
+   use. Always flagged to the user as such.
+   ============================================================ */
+
+const POISON_CONTROL = "1-800-222-1222";
+
+// ---------- STATE ----------
+const State = {
+  screen: "landing", // landing | intake | adaptive | processing | results | emergency
+  theme: "light",
+  ageBand: null,          // one of AGE_BANDS keys
+  object: null,           // one of OBJECT_TYPES keys
+  objectOther: "",
+  symptoms: [],           // array of symptom keys
+  noSymptoms: false,
+  timing: null,           // key from TIMING_OPTIONS
+  extraNotes: "",
+  imageAttached: null,    // { name } placeholder only
+  adaptiveAnswers: {},    // clarifiers gathered by the AI step, e.g. magnetCount, batterySize
+  adaptiveQueue: [],      // pending AI-generated questions this session
+  adaptiveHistory: [],    // {role, content} for the intake clarifying mini-chat
+  assessment: null,       // computed result object
+  reasoningText: null,    // AI-phrased explanation (falls back to deterministic text)
+  reasoningLoading: false,
+  chat: [],               // continue-chatting transcript after results
+  chatLoading: false,
+  preEmergencyReturnScreen: "landing",
+};
+
+const AGE_BANDS = {
+  under1: "Under 12 months",
+  y1_3: "1–3 years",
+  y4_7: "4–7 years",
+  y8_12: "8–12 years",
+  y13_18: "13–18 years",
+};
+
+const OBJECT_TYPES = {
+  coin: { label: "Coin", icon: "circle-dollar-sign", category: "coin_blunt_small" },
+  battery: { label: "Button battery", icon: "battery-warning", category: "battery" },
+  magnet: { label: "Magnet(s)", icon: "magnet", category: "magnet" },
+  sharp: { label: "Sharp object (pin, needle, glass)", icon: "pin", category: "sharp" },
+  toy: { label: "Small toy part", icon: "puzzle", category: "coin_blunt_small" },
+  bone: { label: "Bone or fish bone", icon: "bone", category: "sharp" },
+  food: { label: "Food (whole piece)", icon: "apple", category: "soft_small" },
+  other: { label: "Not sure / something else", icon: "help-circle", category: "unknown" },
+};
+
+const TIMING_OPTIONS = {
+  now: "Just now / within the hour",
+  hours: "A few hours ago",
+  yesterday: "Yesterday or earlier",
+  unsure: "Not sure when",
+};
+
+const SYMPTOMS = {
+  drooling: "Drooling or can't swallow saliva",
+  breathing: "Trouble breathing or noisy breathing",
+  chestpain: "Chest or throat pain",
+  vomiting: "Vomiting",
+  vomitBlood: "Vomiting blood",
+  bellyPain: "Stomach pain",
+  gagging: "Gagging or choking right now",
+  bloodStool: "Blood in stool",
+  fussy: "Fussy but otherwise acting normally",
+};
+
+const EMERGENCY_SYMPTOMS = ["breathing", "gagging", "vomitBlood", "bloodStool"];
+
+// ---------- DETERMINISTIC RULE ENGINE ----------
+// Grounded in: NASPGHAN Endoscopy Committee, "Management of Ingested
+// Foreign Bodies in Children" (JPGN 2015); National Capital Poison
+// Center Button Battery Triage Guideline (2018). Simplified for a
+// pre-hospital, non-diagnostic, parent-facing tool. NEEDS CLINICAL
+// REVIEW before any real-world use.
+
+function computeAssessment(s) {
+  const hasEmergencySymptom = s.symptoms.some(sym => EMERGENCY_SYMPTOMS.includes(sym));
+  const objMeta = OBJECT_TYPES[s.object] || OBJECT_TYPES.other;
+  const category = objMeta.category;
+  const facts = [];
+  let level, label, action, color, citation;
+
+  const EMER = { level: "emergency", label: "Emergency — go now", color: "danger" };
+  const URGENT = { level: "urgent", label: "Urgent — today, don't wait", color: "warning" };
+  const TIMELY = { level: "timely", label: "Same-day medical check", color: "info" };
+  const MONITOR = { level: "monitor", label: "Watch closely at home", color: "success" };
+
+  let result = MONITOR;
+
+  if (hasEmergencySymptom) {
+    result = EMER;
+    facts.push("A symptom you flagged (trouble breathing, ongoing choking, vomiting blood, or blood in the stool) is treated as an emergency regardless of what was swallowed.");
+    citation = "General pediatric emergency triage";
+  } else if (category === "battery") {
+    result = EMER;
+    facts.push("Button batteries can burn through the esophagus in as little as two hours, even with no symptoms yet — location must be confirmed with an X-ray right away.");
+    citation = "National Capital Poison Center Button Battery Triage Guideline, 2018";
+  } else if (category === "magnet") {
+    const count = s.adaptiveAnswers.magnetCount;
+    if (count === "multiple" || count === "unsure") {
+      result = EMER;
+      facts.push("More than one magnet (or a magnet plus another metal object) can pull together across loops of bowel and cause a blockage or perforation — this needs urgent imaging.");
+    } else {
+      result = URGENT;
+      facts.push("A single magnet is lower-risk, but it still needs an X-ray today to confirm it's really just one and to track where it is.");
+    }
+    citation = "NASPGHAN Endoscopy Committee magnet ingestion algorithm, JPGN 2015";
+  } else if (category === "sharp") {
+    result = URGENT;
+    facts.push("Sharp or pointed objects carry a real risk of injuring the esophagus or bowel and are generally removed rather than watched.");
+    citation = "NASPGHAN Endoscopy Committee sharp-object algorithm, JPGN 2015";
+  } else if (category === "coin_blunt_small") {
+    result = TIMELY;
+    facts.push("Most coins and small blunt objects that reach the stomach pass on their own, but an X-ray today is the only way to confirm it isn't caught in the esophagus.");
+    citation = "NASPGHAN Endoscopy Committee coin ingestion algorithm, JPGN 2015";
+  } else if (category === "soft_small") {
+    result = MONITOR;
+    facts.push("A small, soft, food-type object with no symptoms usually passes on its own within about a week.");
+    citation = "General pediatric GI guidance";
+  } else {
+    result = TIMELY;
+    facts.push("When the object isn't clearly identified, a same-day check is the safer default since sharp objects, batteries, and magnets can look ordinary at a glance.");
+    citation = "Precautionary default";
+  }
+
+  if (s.ageBand === "under1" && (result.level === "monitor" || result.level === "timely")) {
+    facts.push("Because your child is under 12 months, we're erring toward earlier evaluation.");
+    result = result.level === "monitor" ? TIMELY : result;
+  }
+
+  return {
+    ...result,
+    facts,
+    citation,
+    category,
+    objectLabel: s.object === "other" && s.objectOther ? s.objectOther : objMeta.label,
+    preArrival: buildPreArrival(category, result.level, s),
+    hospitalGuidance: buildHospitalGuidance(result.level, category),
+  };
+}
+
+function buildPreArrival(category, level, s) {
+  const steps = [];
+  if (level === "emergency" && EMERGENCY_SYMPTOMS.some(k => s.symptoms.includes(k))) {
+    steps.push("Call 911 now if breathing is difficult, lips or face look blue, or your child is not responding.");
+  }
+  if (category === "battery") {
+    steps.push("Do not induce vomiting.");
+    if (s.ageBand !== "under1") {
+      steps.push("If your child is over 12 months old and swallowing normally, honey (10 mL / 2 tsp every 10 minutes, up to 6 doses) on the way to the ER can help protect the esophagus — only if they can swallow it comfortably.");
+    } else {
+      steps.push("Because your child is under 12 months, skip the honey step — go straight to the ER.");
+    }
+    steps.push("Don't give food or drink otherwise, in case a procedure is needed.");
+  } else if (category === "magnet") {
+    steps.push("Do not induce vomiting or give laxatives on your own.");
+    steps.push("Avoid food or drink until they're seen, in case imaging or a procedure is needed.");
+    steps.push("If you have the packaging for the magnet(s), bring it — it helps the team judge strength and size.");
+  } else if (category === "sharp") {
+    steps.push("Do not induce vomiting.");
+    steps.push("Avoid giving solid food; small sips of water are usually fine unless your child is drooling or can't swallow.");
+  } else {
+    steps.push("Do not induce vomiting.");
+    steps.push("Keep an eye on mood, breathing, and comfort until they're checked.");
+  }
+  steps.push("Bring the object's packaging or a similar item if you have one — it helps clinicians identify size and material.");
+  return steps;
+}
+
+function buildHospitalGuidance(level, category) {
+  if (level === "emergency") {
+    return "Go to the nearest Emergency Department now, or call 911. Call ahead if you can so they can be ready — mention the object and your child's age.";
+  }
+  if (level === "urgent") {
+    return "Go to an Emergency Department today — this shouldn't wait for a regular office visit. Urgent care centers usually cannot X-ray or remove swallowed objects.";
+  }
+  if (level === "timely") {
+    return "Call your pediatrician now or go to an Emergency Department today for an X-ray. If it's after hours, an ED is the right call.";
+  }
+  return "You likely don't need an ER visit right now. Call your pediatrician if you'd like reassurance, and watch for the return-precautions below.";
+}
+
+// ---------- CLAUDE API (language layer only — never sets urgency) ----------
+async function callClaude(system, messages) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 700,
+      system,
+      messages,
+    }),
+  });
+  if (!res.ok) throw new Error("API error " + res.status);
+  const data = await res.json();
+  return (data.content || []).map(b => b.text || "").join("\n").trim();
+}
+
+function stripFences(t) {
+  return t.replace(/```json/gi, "").replace(/```/g, "").trim();
+}
+
+// Ask the model whether a clarifying question is needed, and what it is.
+// The model may ONLY ask questions and offer quick-reply options — it
+// never outputs an urgency level or medical recommendation here.
+async function getAdaptiveQuestion(s) {
+  const needsMagnetCount = s.object === "magnet" && !s.adaptiveAnswers.magnetCount;
+  const needsBatterySize = s.object === "battery" && !s.adaptiveAnswers.batterySize;
+  const needsOtherDetail = s.object === "other" && !s.adaptiveAnswers.otherDescribed;
+
+  if (!needsMagnetCount && !needsBatterySize && !needsOtherDetail) return null;
+
+  const system = `You are the intake assistant for SwallowSafe AI, a pre-hospital guidance tool for parents of a child who may have swallowed something.
+Your ONLY job right now is to ask ONE short, warm, plain-language clarifying question to fill a specific missing clinical detail, and offer 2-4 short quick-reply options when the answer is naturally a small set of choices.
+You must NEVER state an urgency level, diagnosis, or medical recommendation. You are not deciding anything — you are only collecting information.
+Respond ONLY with compact JSON, no prose, no markdown fences, in this exact shape:
+{"question": "string", "options": ["string", "..."] , "field": "magnetCount" | "batterySize" | "otherDescribed"}
+If asking about magnets: field must be "magnetCount", options should include something like ["Just one magnet","More than one magnet","Not sure"].
+If asking about a battery: field must be "batterySize", options like ["Smaller than a coin (under 20mm)","About the size of a coin or bigger","Not sure"].
+If the object is unclear ("other"): field must be "otherDescribed", options like a couple of plausible clarifications plus "Something else" — keep it very short.`;
+
+  const context = `Child's age: ${AGE_BANDS[s.ageBand] || "unknown"}. Reported object: ${s.object === "other" ? (s.objectOther || "unclear") : OBJECT_TYPES[s.object].label}. Symptoms so far: ${s.symptoms.length ? s.symptoms.map(k=>SYMPTOMS[k]).join(", ") : "none reported"}. Extra notes from parent: ${s.extraNotes || "none"}.`;
+
+  try {
+    const raw = await callClaude(system, [{ role: "user", content: context }]);
+    const parsed = JSON.parse(stripFences(raw));
+    return parsed;
+  } catch (e) {
+    // Fail safe: skip adaptive question rather than block the flow.
+    return null;
+  }
+}
+
+async function getReasoningText(s, assessment) {
+  const system = `You are SwallowSafe AI's explanation writer. You are given a clinical urgency level and supporting facts that have ALREADY been decided by a deterministic rule engine based on published pediatric guidelines. You must NOT change, soften, escalate, or contradict the given urgency level or facts.
+Write 2-4 short sentences in warm, plain language for a worried parent, explaining WHY this urgency level fits their situation, referencing only the facts provided. No medical jargon. No new medical claims beyond the facts given. Do not mention that you are an AI or mention rule engines, JSON, or algorithms — speak directly and warmly to the parent. Do not use the words "diagnosis" or "diagnose".`;
+
+  const context = `Urgency level (fixed, do not change): ${assessment.label}.
+Object: ${assessment.objectLabel}. Child's age: ${AGE_BANDS[s.ageBand]}.
+Symptoms reported: ${s.symptoms.length ? s.symptoms.map(k=>SYMPTOMS[k]).join(", ") : "none"}.
+Supporting facts (already determined, explain these, don't add new ones): ${assessment.facts.join(" ")}`;
+
+  try {
+    return await callClaude(system, [{ role: "user", content: context }]);
+  } catch (e) {
+    return assessment.facts.join(" ");
+  }
+}
+
+async function getFollowUpChatReply(s, userText) {
+  const system = `You are SwallowSafe AI, continuing a conversation with a parent AFTER a fixed urgency level has already been given: "${s.assessment.label}" for a child who swallowed ${s.assessment.objectLabel}.
+Rules you must follow:
+- Never change, upgrade, downgrade, or contradict the urgency level already given.
+- If the parent describes a NEW symptom that sounds like an emergency (can't breathe, turning blue, unresponsive, choking right now, vomiting blood), tell them clearly to call 911 immediately, regardless of anything else.
+- You may answer general questions in plain language and reference the pre-arrival instructions and hospital guidance already given.
+- You are not a doctor and must not diagnose. Remind them, when relevant, that a clinician makes the final call.
+- Keep answers short: 2-4 sentences.`;
+
+  const history = s.chat.map(m => ({ role: m.role, content: m.content }));
+  try {
+    return await callClaude(system, [...history, { role: "user", content: userText }]);
+  } catch (e) {
+    return "I'm having trouble reaching the guidance service right now. If anything about your child's breathing, color, or alertness changes, call 911 immediately — otherwise, please follow the hospital guidance above or call " + POISON_CONTROL + ".";
+  }
+}
+
+// ---------- RENDER HELPERS ----------
+function icon(name, size=20) {
+  return `<i data-lucide="${name}" style="width:${size}px;height:${size}px"></i>`;
+}
+
+function renderApp() {
+  const app = document.getElementById("app");
+  let html = "";
+  switch (State.screen) {
+    case "landing": html = renderLanding(); break;
+    case "intake": html = renderIntake(); break;
+    case "adaptive": html = renderAdaptive(); break;
+    case "processing": html = renderProcessing(); break;
+    case "results": html = renderResults(); break;
+    case "emergency": html = renderEmergency(); break;
+  }
+  app.innerHTML = topBar() + html + emergencyFab();
+  if (window.lucide) lucide.createIcons();
+  const scroller = document.scrollingElement || document.documentElement;
+  scroller.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function topBar() {
+  return `
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-mark">${icon("droplet", 18)}</div>
+      SwallowSafe AI
+    </div>
+    <button class="btn btn-ghost" onclick="App.toggleTheme()" aria-label="Toggle dark mode">
+      ${icon(State.theme === "light" ? "moon" : "sun", 18)}
+    </button>
+  </div>`;
+}
+
+function emergencyFab() {
+  if (State.screen === "emergency") return "";
+  return `
+  <button class="emergency-fab" onclick="App.goEmergency()">
+    ${icon("phone-call", 18)} Emergency? Get help now
+  </button>`;
+}
+
+function progressBar(step, total) {
+  return `<div class="progress-track" style="margin-bottom:24px;"><div class="progress-fill" style="width:${(step/total)*100}%"></div></div>`;
+}
+
+function disclaimerFooter() {
+  return `<p style="font-size:12px;color:var(--text-muted);margin-top:32px;line-height:1.5;">
+    SwallowSafe AI is an educational prototype for a course project. It does not diagnose and does not replace
+    emergency services or your child's physician. Its guidance is drawn from published pediatric ingestion
+    guidelines but has <strong>not been reviewed by a clinician</strong> — when in doubt, call your doctor,
+    Poison Control (${POISON_CONTROL}), or 911.
+  </p>`;
+}
+
+// ---------- SCREEN: LANDING ----------
+function renderLanding() {
+  return `
+  <div class="fade-in">
+    <div style="padding:32px 0 8px;">
+      <span class="badge" style="background:color-mix(in srgb, var(--secondary) 14%, transparent); color:var(--secondary);">
+        ${icon("shield-check", 14)} Built on published pediatric guidelines
+      </span>
+      <h1 style="font-size:2.6rem; line-height:1.1; margin-top:16px;">You don't have to guess what to do next.</h1>
+      <p style="font-size:1.15rem; color:var(--text-secondary); margin-top:16px; max-width:56ch;">
+        If your child swallowed something, SwallowSafe AI walks you through a few quick questions and tells you,
+        in plain language, how urgent it is, what to do before you go, and where to go — grounded in the same
+        guidelines emergency physicians use.
+      </p>
+      <div style="display:flex; gap:12px; margin-top:28px; flex-wrap:wrap;">
+        <button class="btn btn-primary" style="font-size:16px; padding:14px 28px;" onclick="App.startIntake()">
+          ${icon("arrow-right", 18)} Start assessment
+        </button>
+        <button class="btn btn-secondary" onclick="App.goEmergency()">
+          My child can't breathe / is unresponsive
+        </button>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-top:40px;">
+      <div class="card">
+        <div style="color:var(--primary); margin-bottom:8px;">${icon("clock", 22)}</div>
+        <h4 style="font-size:1rem;">Under 2 minutes</h4>
+        <p style="color:var(--text-secondary); font-size:14px; margin-top:6px;">No sign-up needed to get your first answer.</p>
+      </div>
+      <div class="card">
+        <div style="color:var(--secondary); margin-bottom:8px;">${icon("book-open", 22)}</div>
+        <h4 style="font-size:1rem;">Guideline-based</h4>
+        <p style="color:var(--text-secondary); font-size:14px; margin-top:6px;">Urgency is decided by fixed clinical rules, not by a chatbot guessing.</p>
+      </div>
+      <div class="card">
+        <div style="color:var(--tertiary); margin-bottom:8px;">${icon("stethoscope", 22)}</div>
+        <h4 style="font-size:1rem;">Doctors decide, always</h4>
+        <p style="color:var(--text-secondary); font-size:14px; margin-top:6px;">We help you get there faster — your child's clinician makes the call.</p>
+      </div>
+    </div>
+
+    ${disclaimerFooter()}
+  </div>`;
+}
+
+// ---------- SCREEN: INTAKE ----------
+function renderIntake() {
+  return `
+  <div class="fade-in">
+    ${progressBar(1, 2)}
+    <h2 style="font-size:1.7rem; margin-bottom:4px;">Tell us what happened</h2>
+    <p style="color:var(--text-secondary); margin-bottom:24px;">A few quick taps — no typing required unless you want to add detail.</p>
+
+    <div style="margin-bottom:28px;">
+      <label>Child's age</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${Object.entries(AGE_BANDS).map(([k,v]) => `
+          <button class="chip" aria-pressed="${State.ageBand===k}" onclick="App.setAge('${k}')">${v}</button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <label>What did they swallow?</label>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px;">
+        ${Object.entries(OBJECT_TYPES).map(([k,v]) => `
+          <button class="card-select" aria-pressed="${State.object===k}" onclick="App.setObject('${k}')">
+            <span style="color:var(--primary);">${icon(v.icon, 20)}</span>
+            <span style="font-size:14px; font-weight:600;">${v.label}</span>
+          </button>
+        `).join("")}
+      </div>
+      ${State.object === "other" ? `
+        <div style="margin-top:10px;">
+          <label for="objOther">Describe it (optional)</label>
+          <input type="text" id="objOther" value="${escapeAttr(State.objectOther)}" placeholder="e.g. a small plastic bead"
+            oninput="App.setObjectOther(this.value)" />
+        </div>` : ""}
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <label>Any symptoms right now?</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="chip" aria-pressed="${State.noSymptoms}" onclick="App.setNoSymptoms()">No symptoms at all</button>
+        ${Object.entries(SYMPTOMS).map(([k,v]) => `
+          <button class="chip" aria-pressed="${State.symptoms.includes(k)}" onclick="App.toggleSymptom('${k}')">${v}</button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <label>When did this happen?</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${Object.entries(TIMING_OPTIONS).map(([k,v]) => `
+          <button class="chip" aria-pressed="${State.timing===k}" onclick="App.setTiming('${k}')">${v}</button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <label for="extraNotes">Anything else you want to tell us (optional)</label>
+      <textarea id="extraNotes" rows="3" placeholder="e.g. we heard them cough right after"
+        oninput="App.setExtraNotes(this.value)">${escapeHtml(State.extraNotes)}</textarea>
+    </div>
+
+    <div style="margin-bottom:32px;">
+      <label>Photo of the object or packaging (optional)</label>
+      <div class="card" style="display:flex; align-items:center; gap:12px; padding:16px;">
+        <span style="color:var(--text-muted);">${icon("image", 22)}</span>
+        <div style="flex:1;">
+          <input type="file" accept="image/*" style="display:none" id="imgInput" onchange="App.attachImage(this.files[0])" />
+          ${State.imageAttached
+            ? `<span style="font-size:14px;">${escapeHtml(State.imageAttached)} attached — kept for your records, a clinician can view it in person.</span>`
+            : `<button class="btn btn-secondary" style="padding:8px 14px; font-size:13px;" onclick="document.getElementById('imgInput').click()">Add a photo</button>`
+          }
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%; font-size:16px;" ${canContinueIntake() ? "" : "disabled"} onclick="App.submitIntake()">
+      Continue ${icon("arrow-right", 18)}
+    </button>
+    ${disclaimerFooter()}
+  </div>`;
+}
+
+function canContinueIntake() {
+  const symptomsOk = State.noSymptoms || State.symptoms.length > 0;
+  return State.ageBand && State.object && symptomsOk && State.timing;
+}
+
+// ---------- SCREEN: ADAPTIVE (AI clarifying mini-chat) ----------
+function renderAdaptive() {
+  const bubbles = State.adaptiveHistory.map(m => `
+    <div class="${m.role === 'assistant' ? 'chat-bubble-ai' : 'chat-bubble-user'}" style="margin-bottom:12px;">
+      ${escapeHtml(m.content)}
+    </div>`).join("");
+
+  const current = State.adaptiveQueue[0];
+
+  return `
+  <div class="fade-in">
+    ${progressBar(2, 2)}
+    <h2 style="font-size:1.4rem; margin-bottom:16px;">Just one or two quick follow-ups</h2>
+    <div style="min-height:60px;">${bubbles}</div>
+    ${State.adaptiveLoading ? `
+      <div class="chat-bubble-ai"><span class="typing-dot"></span> <span class="typing-dot"></span> <span class="typing-dot"></span></div>
+    ` : current ? `
+      <div class="chat-bubble-ai" style="margin-bottom:16px;">${escapeHtml(current.question)}</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${(current.options || []).map(opt => `
+          <button class="chip" onclick="App.answerAdaptive(${JSON.stringify(opt).replace(/"/g,'&quot;')})">${escapeHtml(opt)}</button>
+        `).join("")}
+      </div>
+      <div style="margin-top:14px; display:flex; gap:8px;">
+        <input type="text" id="adaptiveFree" placeholder="Or type your own answer" />
+        <button class="btn btn-secondary" onclick="App.answerAdaptive(document.getElementById('adaptiveFree').value)">Send</button>
+      </div>
+    ` : ""}
+  </div>`;
+}
+
+// ---------- SCREEN: PROCESSING ----------
+function renderProcessing() {
+  return `
+  <div class="fade-in" style="text-align:center; padding:80px 0;">
+    <div style="margin-bottom:20px; color:var(--primary);">${icon("loader-circle", 36)}</div>
+    <h3 style="font-size:1.2rem;">Checking this against pediatric guidelines…</h3>
+    <p style="color:var(--text-secondary); margin-top:8px;">This takes a few seconds.</p>
+  </div>`;
+}
+
+// ---------- SCREEN: RESULTS ----------
+const URGENCY_ICON = { emergency: "siren", urgent: "triangle-alert", timely: "clock-alert", monitor: "circle-check" };
+
+function renderResults() {
+  const a = State.assessment;
+  if (!a) return "";
+  const colorVar = `var(--${a.color})`;
+  return `
+  <div class="fade-in">
+    <div class="card" style="border-color:${colorVar}; border-width:2px; text-align:center; padding:28px 20px;">
+      <div style="color:${colorVar}; margin-bottom:8px;">${icon(URGENCY_ICON[a.level], 40)}</div>
+      <h2 style="font-size:1.6rem; color:${colorVar};">${a.label}</h2>
+      <p style="margin-top:8px; color:var(--text-secondary);">${a.hospitalGuidance}</p>
+      ${a.level === "emergency" ? `
+        <a href="tel:911" class="btn btn-danger" style="margin-top:16px; width:100%;">${icon("phone-call",18)} Call 911 now</a>
+      ` : ""}
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 style="margin-bottom:10px;">${icon("message-circle-question", 18)} What this means</h4>
+      ${State.reasoningLoading
+        ? `<p style="color:var(--text-muted);">Putting this in plain language…</p>`
+        : `<p style="color:var(--text-secondary);">${escapeHtml(State.reasoningText || a.facts.join(" "))}</p>`
+      }
+      <p class="mono" style="font-size:12px; color:var(--text-muted); margin-top:10px;">Source: ${a.citation}</p>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 style="margin-bottom:10px;">${icon("list-checks", 18)} Before you go</h4>
+      <ul style="margin:0; padding-left:20px; color:var(--text-secondary);">
+        ${a.preArrival.map(step => `<li style="margin-bottom:6px;">${escapeHtml(step)}</li>`).join("")}
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 style="margin-bottom:10px;">${icon("clipboard-list", 18)} Summary to share with a clinician</h4>
+      <div class="mono" style="font-size:13px; color:var(--text-secondary); line-height:1.8;">
+        Child's age: ${AGE_BANDS[State.ageBand]}<br/>
+        Object: ${a.objectLabel}<br/>
+        Symptoms: ${State.symptoms.length ? State.symptoms.map(k=>SYMPTOMS[k]).join(", ") : "None reported"}<br/>
+        Timing: ${TIMING_OPTIONS[State.timing]}<br/>
+        Notes: ${State.extraNotes || "—"}<br/>
+        Suggested urgency: ${a.label}
+      </div>
+      <button class="btn btn-ghost" style="margin-top:10px; padding:8px 0; font-size:13px;" onclick="App.copySummary()">${icon("copy",14)} Copy summary</button>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 style="margin-bottom:10px;">${icon("message-circle", 18)} Have a follow-up question?</h4>
+      <div style="max-height:260px; overflow-y:auto; margin-bottom:12px;">
+        ${State.chat.map(m => `
+          <div class="${m.role==='assistant' ? 'chat-bubble-ai' : 'chat-bubble-user'}" style="margin-bottom:10px;">${escapeHtml(m.content)}</div>
+        `).join("")}
+        ${State.chatLoading ? `<div class="chat-bubble-ai"><span class="typing-dot"></span> <span class="typing-dot"></span> <span class="typing-dot"></span></div>` : ""}
+      </div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="chatInput" placeholder="Ask anything about what to do next" onkeydown="if(event.key==='Enter') App.sendChat()" />
+        <button class="btn btn-primary" onclick="App.sendChat()">${icon("send",16)}</button>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" style="width:100%; margin-top:20px;" onclick="App.reset()">Start a new assessment</button>
+    ${disclaimerFooter()}
+  </div>`;
+}
+
+// ---------- SCREEN: EMERGENCY ----------
+function renderEmergency() {
+  return `
+  <div class="fade-in" style="text-align:center; padding-top:24px;">
+    <div style="color:var(--danger); margin-bottom:12px;">${icon("siren", 48)}</div>
+    <h2 style="color:var(--danger); font-size:1.7rem;">If your child can't breathe, is turning blue, or won't wake up — call 911 now.</h2>
+    <a href="tel:911" class="btn btn-danger" style="width:100%; margin-top:24px; font-size:18px; padding:16px;">${icon("phone-call",20)} Call 911</a>
+    <div class="card" style="margin-top:20px; text-align:left;">
+      <h4 style="margin-bottom:8px;">Not sure it's that serious?</h4>
+      <p style="color:var(--text-secondary); margin-bottom:12px;">Poison Control can talk you through it right now, day or night.</p>
+      <a href="tel:${POISON_CONTROL.replace(/-/g,'')}" class="btn btn-secondary" style="width:100%;">${icon("phone",18)} Call Poison Control · ${POISON_CONTROL}</a>
+    </div>
+    <button class="btn btn-ghost" style="margin-top:20px;" onclick="App.leaveEmergency()">${icon("arrow-left",16)} Go back</button>
+  </div>`;
+}
+
+// ---------- UTIL ----------
+function escapeHtml(str) {
+  return (str || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+
+// ---------- APP CONTROLLER ----------
+const App = {
+  toggleTheme() {
+    State.theme = State.theme === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", State.theme);
+  },
+  startIntake() { State.screen = "intake"; renderApp(); },
+  setAge(k) { State.ageBand = k; renderApp(); },
+  setObject(k) { State.object = k; if (k !== "other") State.objectOther = ""; renderApp(); },
+  setObjectOther(v) { State.objectOther = v; },
+  setNoSymptoms() {
+    State.noSymptoms = !State.noSymptoms;
+    if (State.noSymptoms) State.symptoms = [];
+    renderApp();
+  },
+  toggleSymptom(k) {
+    State.noSymptoms = false;
+    const i = State.symptoms.indexOf(k);
+    if (i >= 0) State.symptoms.splice(i,1); else State.symptoms.push(k);
+    renderApp();
+  },
+  setTiming(k) { State.timing = k; renderApp(); },
+  setExtraNotes(v) { State.extraNotes = v; },
+  attachImage(file) { if (file) { State.imageAttached = file.name; renderApp(); } },
+
+  async submitIntake() {
+    if (!canContinueIntake()) return;
+    // Emergency symptoms short-circuit straight to results — never delay for adaptive Qs.
+    const hasEmergency = State.symptoms.some(s => EMERGENCY_SYMPTOMS.includes(s));
+    if (hasEmergency) { return App.runAssessment(); }
+
+    const needsAdaptive = ["magnet","battery","other"].includes(State.object);
+    if (!needsAdaptive) return App.runAssessment();
+
+    State.screen = "adaptive";
+    State.adaptiveLoading = true;
+    renderApp();
+    const q = await getAdaptiveQuestion(State);
+    State.adaptiveLoading = false;
+    if (q && q.question) {
+      State.adaptiveQueue = [q];
+    } else {
+      return App.runAssessment();
+    }
+    renderApp();
+  },
+
+  async answerAdaptive(answerText) {
+    if (!answerText) return;
+    const q = State.adaptiveQueue.shift();
+    State.adaptiveHistory.push({ role: "assistant", content: q.question });
+    State.adaptiveHistory.push({ role: "user", content: answerText });
+
+    // Map free text roughly onto structured field for the rule engine.
+    if (q.field === "magnetCount") {
+      const t = answerText.toLowerCase();
+      State.adaptiveAnswers.magnetCount = t.includes("one") && !t.includes("more") ? "single"
+        : (t.includes("more") || t.includes("multiple") || t.includes("several")) ? "multiple" : "unsure";
+    } else if (q.field === "batterySize") {
+      State.adaptiveAnswers.batterySize = answerText;
+    } else if (q.field === "otherDescribed") {
+      State.adaptiveAnswers.otherDescribed = answerText;
+      if (!State.objectOther) State.objectOther = answerText;
+    }
+
+    renderApp();
+    State.adaptiveLoading = true;
+    renderApp();
+    const next = await getAdaptiveQuestion(State);
+    State.adaptiveLoading = false;
+    if (next && next.question) {
+      State.adaptiveQueue = [next];
+      renderApp();
+    } else {
+      App.runAssessment();
+    }
+  },
+
+  async runAssessment() {
+    State.screen = "processing";
+    renderApp();
+    const assessment = computeAssessment(State);
+    State.assessment = assessment;
+    State.screen = "results";
+    State.reasoningLoading = true;
+    renderApp();
+    State.reasoningText = await getReasoningText(State, assessment);
+    State.reasoningLoading = false;
+    renderApp();
+  },
+
+  async sendChat() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    State.chat.push({ role: "user", content: text });
+    State.chatLoading = true;
+    renderApp();
+    const reply = await getFollowUpChatReply(State, text);
+    State.chatLoading = false;
+    State.chat.push({ role: "assistant", content: reply });
+    renderApp();
+  },
+
+  copySummary() {
+    const a = State.assessment;
+    const text = `Child's age: ${AGE_BANDS[State.ageBand]}\nObject: ${a.objectLabel}\nSymptoms: ${State.symptoms.length ? State.symptoms.map(k=>SYMPTOMS[k]).join(", ") : "None reported"}\nTiming: ${TIMING_OPTIONS[State.timing]}\nNotes: ${State.extraNotes || "—"}\nSuggested urgency: ${a.label}`;
+    navigator.clipboard.writeText(text).catch(()=>{});
+  },
+
+  goEmergency() {
+    if (State.screen !== "emergency") State.preEmergencyReturnScreen = State.screen;
+    State.screen = "emergency";
+    renderApp();
+  },
+  leaveEmergency() { State.screen = State.preEmergencyReturnScreen || "landing"; renderApp(); },
+
+  reset() {
+    Object.assign(State, {
+      screen: "landing", ageBand: null, object: null, objectOther: "", symptoms: [], noSymptoms: false,
+      timing: null, extraNotes: "", imageAttached: null, adaptiveAnswers: {}, adaptiveQueue: [],
+      adaptiveHistory: [], assessment: null, reasoningText: null, reasoningLoading: false,
+      chat: [], chatLoading: false,
+    });
+    renderApp();
+  },
+};
+
+renderApp();
+</script>
+</body>
+</html>
